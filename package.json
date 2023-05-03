@@ -18,7 +18,11 @@
   },
   "homepage": "https://github.com/khanduulga/tinyAppRemade#readme",
   "dependencies": {
+    "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.2",
+    "cookie-session": "^2.0.0",
     "ejs": "^3.1.9",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "method-override": "^3.0.0"
   }
 }
