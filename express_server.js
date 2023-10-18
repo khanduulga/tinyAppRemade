@@ -1,8 +1,12 @@
 const express = require("express");
 
+
 //START server
 const app = express();
 const PORT = 8080; // default port 8080
+
+//SET the view engine to ejs
+app.set('view engine', 'ejs')
 
 //CONSTS
 const urlDatabase = {
@@ -14,6 +18,14 @@ const urlDatabase = {
 
 app.get("/", (req, res) => {
   res.send("Hello!");
+});
+
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 //MESSAGE for console after startup
