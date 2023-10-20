@@ -16,6 +16,7 @@ const urlDatabase = {
 
 //PAGES
 
+//GET
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -25,11 +26,16 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
+
+//POST
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id]
+  res.redirect("/urls");
+})
 
 //MESSAGE for console after startup
 app.listen(PORT, () => {
