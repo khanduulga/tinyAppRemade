@@ -28,14 +28,18 @@
           <label for="longURL">Enter a URL:</label>
           <input
             class="form-control"
-            type="text"
+            type="url"
             name="longURL"
-            placeholder="http://"
+            placeholder="http://example.com"
             style="width: 300px; margin: 1em"
+            required
+            pattern="https?://.*"
           />
           <button type="submit" class="btn btn-primary">Submit</button>
         </div>
       </form>
+      <p >Must be a full URL address including http or https protocol</p>
+
     </main>
     <!-- Bootstrap JS -->
     <script
