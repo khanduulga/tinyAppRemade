@@ -1,4 +1,5 @@
 const express = require("express");
+let cookieParser = require('cookie-parser')
 
 
 //START server
@@ -15,12 +16,16 @@ const urlDatabase = {
 };
 
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser())
 
 //PAGES
 
 //GET
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies["username"]
+   };
   res.render("urls_index", templateVars);
 });
 
