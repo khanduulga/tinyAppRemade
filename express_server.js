@@ -44,6 +44,10 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
+app.get("/register", (req, res) => {
+  res.render("register")
+})
+
 //POST
 
 //helper(s) for post
@@ -84,6 +88,10 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   res.clearCookie('username')
   res.redirect("/urls");
+})
+
+app.post("/register", (req, res) => {
+  //implement
 })
 
 
