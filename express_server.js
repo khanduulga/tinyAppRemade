@@ -14,6 +14,18 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser())
@@ -91,7 +103,16 @@ app.post("/logout", (req, res) => {
 })
 
 app.post("/register", (req, res) => {
-  //implement
+  let id = generateRandomString()
+  let email = req.body.email
+  let password = req.body.password
+
+  users[id] = {
+    id, email, password
+  }
+
+  res.cookie("user_id", id)
+  res.redirect("/urls")
 })
 
 
