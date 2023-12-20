@@ -83,6 +83,17 @@ const generateRandomString = () => {
   return randomId
 }
 
+const findUserByEmail = (email) => {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return users[user];
+    }
+  }
+  return null;
+}
+
+//end of helpers
+
 app.post("/urls", (req, res) => {
   const urlId = generateRandomString()
   const longURL = req.body.longURL
@@ -121,18 +132,21 @@ app.post("/register", (req, res) => {
   let email = req.body.email
   let password = req.body.password
 
-  users[id] = {
-    id, email, password
+  if (!email || !password) {
+    return res.status(400).send("You must include an email or password.")
+  } 
+  else if (findUserByEmail(email)) {
+    return res.status(400).send("Email already exists.")
+  } 
+  else {
+    users[id] = {
+      id, email, password
+    }
+  
+    res.cookie("user_id", id)
+    res.redirect("/urls")
   }
-
-  console.log(users)
-
-  res.cookie("user_id", id)
-  res.redirect("/urls")
 })
-
-
-
 
 //MESSAGE for console after startup
 app.listen(PORT, () => {
