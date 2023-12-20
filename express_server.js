@@ -34,10 +34,10 @@ app.use(cookieParser())
 
 //GET
 app.get("/urls", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     user: users[req.cookies["user_id"]],
     urls: urlDatabase
-   };
+  };
 
   res.render("urls_index", templateVars);
 });
@@ -52,8 +52,8 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
-    user: users[req.cookies["user_id"]], 
-    id: req.params.id, 
+    user: users[req.cookies["user_id"]],
+    id: req.params.id,
     longURL: urlDatabase[req.params.id]
   };
 
@@ -67,11 +67,19 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render("register")
+  const templateVars = {
+    user: users[req.cookies["user_id"]]
+  };
+
+  res.render("register", templateVars)
 })
 
 app.get("/login", (req, res) => {
-  res.render("login")
+  const templateVars = {
+    user: users[req.cookies["user_id"]]
+  };
+
+  res.render("login", templateVars)
 })
 
 //POST
@@ -120,33 +128,43 @@ app.post("/urls/:id", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  const id = "userRandomID"
-  res.cookie('user_id', id)
+  const email = req.body.email
+  const password = req.body.password
+  const user = findUserByEmail(email)
 
-  res.redirect("/urls");
+  if (!user) {
+    return res.status(403).send("User does not exist.")
+  }
+  else if (user.password !== password) {
+    return res.status(403).send("Incorrect password.")
+  }
+  else {
+    res.cookie('user_id', user.id)
+    res.redirect("/urls");
+  }
 })
 
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id')
-  res.redirect("/urls");
+  res.redirect("/login");
 })
 
 app.post("/register", (req, res) => {
-  let id = generateRandomString()
-  let email = req.body.email
-  let password = req.body.password
+  const id = generateRandomString()
+  const email = req.body.email
+  const password = req.body.password
 
   if (!email || !password) {
     return res.status(400).send("You must include an email or password.")
-  } 
+  }
   else if (findUserByEmail(email)) {
     return res.status(400).send("Email already exists.")
-  } 
+  }
   else {
     users[id] = {
       id, email, password
     }
-  
+
     res.cookie("user_id", id)
     res.redirect("/urls")
   }

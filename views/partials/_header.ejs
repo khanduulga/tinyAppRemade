@@ -12,15 +12,15 @@
       </div>
     </div>
     <% if(user) { %>
-      <a class="navbar-dark">Hi, <%= user["email"] %></a>
+      <a class="navbar-dark">Logged In As: <%= user["email"] %>! </a>
       <form method="post" action="/logout">
-        <button class="btn btn-dark" type="submit">Logout</button>
+        <button class="btn btn-outline-dark" type="submit">Logout</button>
       </form>
-    <% } else { %>
-      <div>
-        <a class="btn btn-primary" href="/login">Login</a>
-        <a class="btn btn-warning" href="/register">Register</a>
-      </div>
-    <% } %>
+      <% } else { %>
+        <div>
+          <a class="btn btn-primary" href="/login">Login</a>
+          <a class="btn btn-warning" href="/register">Register</a>
+        </div>
+        <% } %>
   </nav>
 </header>
