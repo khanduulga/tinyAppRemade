@@ -47,7 +47,11 @@ app.get("/urls/new", (req, res) => {
     user: users[req.cookies["user_id"]]
   }
 
-  res.render("urls_new", templateVars)
+  if (!templateVars.user) {
+    res.redirect("/login")
+  } else {
+    res.render("urls_new", templateVars)
+  }
 })
 
 app.get("/urls/:id", (req, res) => {
@@ -62,8 +66,12 @@ app.get("/urls/:id", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id]
-
-  res.redirect(longURL);
+   
+  if (!longURL) {
+    return res.status(404).send("No such link exists, you've been had!")
+  } else {
+    res.redirect(longURL);
+  }
 });
 
 app.get("/register", (req, res) => {
@@ -71,7 +79,11 @@ app.get("/register", (req, res) => {
     user: users[req.cookies["user_id"]]
   };
 
-  res.render("register", templateVars)
+  if (templateVars.user) {
+    res.redirect("/urls")
+  } else {
+    res.render("register", templateVars)
+  }
 })
 
 app.get("/login", (req, res) => {
@@ -79,7 +91,11 @@ app.get("/login", (req, res) => {
     user: users[req.cookies["user_id"]]
   };
 
-  res.render("login", templateVars)
+  if (templateVars.user) {
+    res.redirect("/urls")
+  } else {
+    res.render("login", templateVars)
+  }
 })
 
 //POST
@@ -107,11 +123,16 @@ const findUserByEmail = (email) => {
 //end of helpers
 
 app.post("/urls", (req, res) => {
-  const urlId = generateRandomString()
-  const longURL = req.body.longURL
-  urlDatabase[urlId] = longURL
+  const user = users[req.cookies["user_id"]]
 
-  res.redirect("/urls/" + urlId);
+  if (!user) {
+    return res.status(401).send("Please register first, to be able to shorten URLs.")
+  } else {
+    const urlId = generateRandomString()
+    const longURL = req.body.longURL
+    urlDatabase[urlId] = longURL
+    res.redirect("/urls/" + urlId);
+  }
 })
 
 app.post("/urls/:id/delete", (req, res) => {
