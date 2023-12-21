@@ -11,17 +11,23 @@ app.set('view engine', 'ejs')
 
 //CONSTS
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userId: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userId: "aJ48lW",
+  },
 };
 const users = {
-  userRandomID: {
-    id: "userRandomID",
+  aJ48lW: {
+    id: "aJ48lW",
     email: "user@example.com",
     password: "purple-monkey-dinosaur",
   },
-  user2RandomID: {
-    id: "user2RandomID",
+  user2RandomId: {
+    id: "user2RandomId",
     email: "user2@example.com",
     password: "dishwasher-funk",
   },
@@ -31,15 +37,36 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser())
 
 //PAGES
+//helpers
+const urlsForUser = (id) => {
+  let urls = {}
+  for (const url in urlDatabase) {
+    if (urlDatabase[url].userId === id) {
+      urls[url] = {
+        longURL: urlDatabase[url].longURL,
+        userId: urlDatabase[url].userId
+      }
+    }
+  }
+  return urls
+}
+
+//helpers end
 
 //GET
 app.get("/urls", (req, res) => {
-  const templateVars = {
-    user: users[req.cookies["user_id"]],
-    urls: urlDatabase
-  };
+  const user = users[req.cookies["user_id"]]
 
-  res.render("urls_index", templateVars);
+  if (!user) {
+    return res.status(401).send("Please login or register first!")
+  } else {
+    const urls = urlsForUser(user.id)
+    const templateVars = {
+      user: user,
+      urls: urls
+    };
+    res.render("urls_index", templateVars);
+  }
 });
 
 app.get("/urls/new", (req, res) => {
@@ -55,18 +82,30 @@ app.get("/urls/new", (req, res) => {
 })
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = {
-    user: users[req.cookies["user_id"]],
-    id: req.params.id,
-    longURL: urlDatabase[req.params.id]
-  };
+  const user = users[req.cookies["user_id"]]
 
-  res.render("urls_show", templateVars);
+
+  if (!user) {
+    return res.status(401).send("You are not logged in.")
+  } else {
+    const urls = urlsForUser(user.id)
+    if (urlDatabase[req.params.id].userId === user.id) {
+      const templateVars = {
+        user: user,
+        id: req.params.id,
+        longURL: urlDatabase[req.params.id].longURL
+      };
+
+      res.render("urls_show", templateVars);
+    } else {
+      return res.status(401).send("You do not have access to this link.")
+    }
+  }
 });
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id]
-   
+  const longURL = urlDatabase[req.params.id].longURL
+
   if (!longURL) {
     return res.status(404).send("No such link exists, you've been had!")
   } else {
@@ -130,22 +169,53 @@ app.post("/urls", (req, res) => {
   } else {
     const urlId = generateRandomString()
     const longURL = req.body.longURL
-    urlDatabase[urlId] = longURL
+    urlDatabase[urlId] = { longURL: longURL, userId: user.id }
     res.redirect("/urls/" + urlId);
   }
 })
 
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id]
+  const urlId = req.params.id
+  const user = users[req.cookies["user_id"]]
 
-  res.redirect("/urls");
+  for (const url in urlDatabase) {
+    if (url === urlId) {
+      if (!user) {
+        return res.status(401).send("You are not logged in.")
+      } else {
+        if (urlDatabase[urlId].userId === user.id) {
+          delete urlDatabase[req.params.id]
+          return res.redirect("/urls")
+        } else {
+          return res.status(401).send("You are not authorized to delete this link.")
+        }
+      }
+    }
+  }
+
+  return res.status(404).send("No such thing exists.")
 })
 
 app.post("/urls/:id", (req, res) => {
   const urlId = req.params.id
-  urlDatabase[urlId] = req.body.newURL
+  const user = users[req.cookies["user_id"]]
 
-  res.redirect("/urls")
+  for (const url in urlDatabase) {
+    if (url === urlId) {
+      if (!user) {
+        return res.status(401).send("You are not logged in.")
+      } else {
+        if (urlDatabase[urlId].userId === user.id) {
+          urlDatabase[urlId] = { longURL: req.body.newURL, userId: user.id }
+          res.redirect("/urls")
+        } else {
+          return res.status(401).send("You are not authorized to edit this link.")
+        }
+      }
+    }
+  }
+
+  return res.status(404).send("No such thing exists.")
 })
 
 app.post("/login", (req, res) => {
